@@ -1,20 +1,56 @@
 package com.example.nash.modernui;
 
+import android.app.ActionBar;
+import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import java.util.Random;
 
 
 public class MainActivity extends ActionBarActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.mainLayout);
+        mainLayout.addView(createLayout());
 
     }
+
+    /*
+    * Function : createLayout()
+    * ----------------------------
+    */
+    private LinearLayout createLayout() {
+        LinearLayout linearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+        linearLayout.setBackgroundColor(randomColor());
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setLayoutParams(linearLayoutParams);
+
+        return linearLayout;
+    }
+
+    /*
+    * Function : randomColor()
+    * Usage    : viewVariable.setColor(randomColor);
+    * -----------------------------------------------
+    */
+    private int randomColor() {
+        Random rnd = new Random();
+        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        return color;
+    }
+
 
     // Methods for Options Menu
 
