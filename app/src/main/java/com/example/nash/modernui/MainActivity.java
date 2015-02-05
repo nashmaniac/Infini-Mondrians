@@ -8,33 +8,54 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import java.util.Random;
 
 
 public class MainActivity extends ActionBarActivity {
-
+    private Random rand = new Random();
+    private int MAX_PARTS_ALLOWED = 3;
+    private int TOTAL_WEIGHT_PER_PART = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.mainLayout);
-        mainLayout.addView(createLayout());
+        // Main layout from the xml file
+        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.main_layout);
 
+        makeMondrian(mainLayout, 0);
     }
+
+    private void makeMondrian(LinearLayout parentLayout, int numCount) {
+        if(numCount >= MAX_PARTS_ALLOWED) return;
+        int partitionWeight = rand.nextInt(TOTAL_WEIGHT_PER_PART - 1) + 1; // Avoids the generation of 0
+        LinearLayout firstPartition = createLinearLayout(partitionWeight);
+        LinearLayout secondPartition = createLinearLayout(TOTAL_WEIGHT_PER_PART - partitionWeight);
+
+        parentLayout.addView(firstPartition);
+        parentLayout.addView(secondPartition);
+
+
+        makeMondrian(secondPartition, numCount + 1);
+        makeMondrian(firstPartition, numCount + 1);
+    }
+
 
     /*
     * Function : createLayout()
     * ----------------------------
     */
-    private LinearLayout createLayout() {
+    private LinearLayout createLinearLayout(int layoutWeight) {
         LinearLayout linearLayout = new LinearLayout(this);
         LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+        linearLayoutParams.weight = (float) layoutWeight;
         linearLayout.setBackgroundColor(randomColor());
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setOrientation(rand.nextBoolean() ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(linearLayoutParams);
 
         return linearLayout;
@@ -46,11 +67,9 @@ public class MainActivity extends ActionBarActivity {
     * -----------------------------------------------
     */
     private int randomColor() {
-        Random rnd = new Random();
-        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-        return color;
+        int randColor = Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+        return randColor;
     }
-
 
     // Methods for Options Menu
 
