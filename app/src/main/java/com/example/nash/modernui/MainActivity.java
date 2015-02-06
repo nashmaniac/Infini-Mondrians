@@ -23,8 +23,9 @@ import java.util.Random;
 
 public class MainActivity extends ActionBarActivity{
     private Random rand = new Random();
-    private int MAX_PARTS_ALLOWED = 3;
+    private int MAX_PARTS_ALLOWED = 5;
     private int TOTAL_WEIGHT_PER_PART = 4;
+    private int BORDER_WIDTH = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +40,12 @@ public class MainActivity extends ActionBarActivity{
     private void makeMondrian(LinearLayout parentLayout, int partCount) {
         if(partCount >= MAX_PARTS_ALLOWED) return;
         int partitionWeight = rand.nextInt(TOTAL_WEIGHT_PER_PART - 1) + 1; // Avoids the generation of 0
-        LinearLayout firstPartition = createLinearLayout(partitionWeight);
-        LinearLayout secondPartition = createLinearLayout(TOTAL_WEIGHT_PER_PART - partitionWeight);
+        LinearLayout firstPartition = createLinearLayout(partitionWeight, parentLayout);
+        LinearLayout border = getPartitionBorder(parentLayout.getOrientation());
+        LinearLayout secondPartition = createLinearLayout(TOTAL_WEIGHT_PER_PART - partitionWeight, parentLayout);
 
         parentLayout.addView(firstPartition);
+        parentLayout.addView(border);
         parentLayout.addView(secondPartition);
 
 
@@ -51,19 +54,42 @@ public class MainActivity extends ActionBarActivity{
     }
 
 
+    private LinearLayout getPartitionBorder(int containerOrientation) {
+        LinearLayout border = new LinearLayout(this);
+        border.setBackgroundColor(Color.BLACK);
+
+        LinearLayout.LayoutParams borderParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
+//        borderParams.weight = BORDER_WEIGHT;
+
+        if(containerOrientation == LinearLayout.VERTICAL) {
+            borderParams.height = BORDER_WIDTH;
+        }else{
+            borderParams .width = BORDER_WIDTH;
+        }
+
+        border.setLayoutParams(borderParams);
+        return border;
+    }
+
     /*
     * Function : createLayout(weight of the layout)
     * Usage    : LinearLayout sampleLayout = createLayout(2);
-    * ------------------------------------------------------------------S-
+    * ------------------------------------------------------------------
     * Creates a LinearLayout View with the specified weight in parameter
     */
-    private LinearLayout createLinearLayout(int layoutWeight) {
+    private LinearLayout createLinearLayout(float layoutWeight, LinearLayout parentLayout) {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setBackgroundColor(randomColor());
         linearLayout.setOrientation(rand.nextBoolean() ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
 
-        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
-        linearLayoutParams.weight = (float) layoutWeight;
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        linearLayoutParams.weight = layoutWeight;
+
+        if(parentLayout.getOrientation() == LinearLayout.VERTICAL) {
+            linearLayoutParams.height = 0; // Will be automatically set by provided weight
+        }else {
+            linearLayoutParams.width = 0; // Will be automatically set by provided weight
+        }
 
         linearLayout.setLayoutParams(linearLayoutParams);
 
@@ -76,10 +102,29 @@ public class MainActivity extends ActionBarActivity{
     * -----------------------------------------------
     */
     private int randomColor() {
-        int randColor = Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-        return randColor;
+        boolean shouldBeWhite = generateBiasedBoolean(0.65f);
+        if(shouldBeWhite) {
+            return (Color.argb(255, 255, 255,255));
+        } else {
+            return (Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256)));
+        }
     }
 
+    /*
+     * Function : generateBiasedBoolean(bias Value)
+     * -----------------------------------------------------------------------------------
+     * Favors true more if passed in "float bias"/bias Value is greater than 0.5 and favors false more if passed
+     * in "float bias"/bias Value is less than 0.5
+     */
+    private boolean generateBiasedBoolean(float bias){
+        return (rand.nextFloat() < bias);
+    }
+
+    /*
+    * Function : gestureDetector() and onTouchEvent
+    * ----------------------------------------------
+    * Detects tap and hold on the display
+    */
     final GestureDetector gestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         public void onLongPress(MotionEvent e) {
             recreate();
