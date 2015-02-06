@@ -7,10 +7,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -31,8 +33,8 @@ public class MainActivity extends ActionBarActivity {
         makeMondrian(mainLayout, 0);
     }
 
-    private void makeMondrian(LinearLayout parentLayout, int numCount) {
-        if(numCount >= MAX_PARTS_ALLOWED) return;
+    private void makeMondrian(LinearLayout parentLayout, int partCount) {
+        if(partCount >= MAX_PARTS_ALLOWED) return;
         int partitionWeight = rand.nextInt(TOTAL_WEIGHT_PER_PART - 1) + 1; // Avoids the generation of 0
         LinearLayout firstPartition = createLinearLayout(partitionWeight);
         LinearLayout secondPartition = createLinearLayout(TOTAL_WEIGHT_PER_PART - partitionWeight);
@@ -41,21 +43,25 @@ public class MainActivity extends ActionBarActivity {
         parentLayout.addView(secondPartition);
 
 
-        makeMondrian(secondPartition, numCount + 1);
-        makeMondrian(firstPartition, numCount + 1);
+        makeMondrian(secondPartition, partCount + 1);
+        makeMondrian(firstPartition, partCount + 1);
     }
 
 
     /*
-    * Function : createLayout()
-    * ----------------------------
+    * Function : createLayout(weight of the layout)
+    * Usage    : LinearLayout sampleLayout = createLayout(2);
+    * ------------------------------------------------------------------S-
+    * Creates a LinearLayout View with the specified weight in parameter
     */
     private LinearLayout createLinearLayout(int layoutWeight) {
         LinearLayout linearLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
-        linearLayoutParams.weight = (float) layoutWeight;
         linearLayout.setBackgroundColor(randomColor());
         linearLayout.setOrientation(rand.nextBoolean() ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+        linearLayoutParams.weight = (float) layoutWeight;
+
         linearLayout.setLayoutParams(linearLayoutParams);
 
         return linearLayout;
