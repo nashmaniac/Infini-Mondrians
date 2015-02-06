@@ -1,10 +1,15 @@
 package com.example.nash.modernui;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -13,11 +18,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import java.util.Random;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity{
     private Random rand = new Random();
     private int MAX_PARTS_ALLOWED = 3;
     private int TOTAL_WEIGHT_PER_PART = 4;
@@ -29,7 +33,6 @@ public class MainActivity extends ActionBarActivity {
 
         // Main layout from the xml file
         LinearLayout mainLayout = (LinearLayout) findViewById(R.id.main_layout);
-
         makeMondrian(mainLayout, 0);
     }
 
@@ -77,6 +80,27 @@ public class MainActivity extends ActionBarActivity {
         return randColor;
     }
 
+    final GestureDetector gestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+        public void onLongPress(MotionEvent e) {
+            recreate();
+        }
+    });
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
+    }
+
+    /*
+    * Function : makeToast(message to display in toast)
+    * --------------------------------------------------
+    * Creates and shows toast with the message that is passed in as parameter
+    */
+    public void makeToast(String message) {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, message, duration);
+        toast.show();
+    }
     // Methods for Options Menu
 
     /*
