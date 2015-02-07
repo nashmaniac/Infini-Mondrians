@@ -1,21 +1,13 @@
 package com.example.nash.modernui;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import java.util.Random;
@@ -23,7 +15,8 @@ import java.util.Random;
 
 public class MainActivity extends ActionBarActivity{
     private Random rand = new Random();
-    private int MAX_PARTS_ALLOWED = 5;
+    // Number of parts/squares visible in the Mondrian
+    private int MAX_PARTS = 6;
     private int TOTAL_WEIGHT_PER_PART = 4;
     private int BORDER_WIDTH = 5;
 
@@ -38,28 +31,33 @@ public class MainActivity extends ActionBarActivity{
     }
 
     private void makeMondrian(LinearLayout parentLayout, int partCount) {
-        if(partCount >= MAX_PARTS_ALLOWED) return;
+        if(partCount >= MAX_PARTS) return;
         int partitionWeight = rand.nextInt(TOTAL_WEIGHT_PER_PART - 1) + 1; // Avoids the generation of 0
-        LinearLayout firstPartition = createLinearLayout(partitionWeight, parentLayout);
+        LinearLayout firstPartition = createPartition(partitionWeight, parentLayout);
         LinearLayout border = getPartitionBorder(parentLayout.getOrientation());
-        LinearLayout secondPartition = createLinearLayout(TOTAL_WEIGHT_PER_PART - partitionWeight, parentLayout);
+        LinearLayout secondPartition = createPartition(TOTAL_WEIGHT_PER_PART - partitionWeight, parentLayout);
 
         parentLayout.addView(firstPartition);
         parentLayout.addView(border);
         parentLayout.addView(secondPartition);
 
 
-        makeMondrian(secondPartition, partCount + 1);
-        makeMondrian(firstPartition, partCount + 1);
+        makeMondrian(secondPartition, partCount + 2);
+        makeMondrian(firstPartition, partCount + 2);
     }
 
 
+    /*
+    * Function : getPartitionBorder(orientation of the parent container)
+    * -------------------------------------------------------------------
+    * Returns a thin LinearLayout black in color to act as a border between
+    * two Partitions of the parent.
+    */
     private LinearLayout getPartitionBorder(int containerOrientation) {
         LinearLayout border = new LinearLayout(this);
         border.setBackgroundColor(Color.BLACK);
 
         LinearLayout.LayoutParams borderParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
-//        borderParams.weight = BORDER_WEIGHT;
 
         if(containerOrientation == LinearLayout.VERTICAL) {
             borderParams.height = BORDER_WIDTH;
@@ -72,12 +70,12 @@ public class MainActivity extends ActionBarActivity{
     }
 
     /*
-    * Function : createLayout(weight of the layout)
+    * Function : createPartition(weight of the layout)
     * Usage    : LinearLayout sampleLayout = createLayout(2);
     * ------------------------------------------------------------------
     * Creates a LinearLayout View with the specified weight in parameter
     */
-    private LinearLayout createLinearLayout(float layoutWeight, LinearLayout parentLayout) {
+    private LinearLayout createPartition(float layoutWeight, LinearLayout parentLayout) {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setBackgroundColor(randomColor());
         linearLayout.setOrientation(rand.nextBoolean() ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
