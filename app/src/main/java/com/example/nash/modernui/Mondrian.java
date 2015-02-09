@@ -2,6 +2,7 @@ package com.example.nash.modernui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.TransitionDrawable;
 import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.Random;
@@ -13,7 +14,7 @@ import java.util.Random;
 * He evolved a non-representational form of art that consisted of white background, upon which was painted
 * a grid of vertical and horizontal black lines and three primary colors.
 * These form of paintings are also referred to as Mondrians.
-* This java class serves the purpose of drawing such Mondrians using recursion.
+* This java class serves the purpose of drawing such Mondrians.
 */
 
 public class Mondrian {
@@ -59,9 +60,6 @@ public class Mondrian {
             coloredParts.get(i).setBackgroundColor(getRandomColor(false));
         }
     }
-
-
-
 
 //###################################################### PRIVATE METHODS
 
