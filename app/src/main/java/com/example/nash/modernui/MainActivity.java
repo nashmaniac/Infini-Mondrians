@@ -4,21 +4,23 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 
 public class MainActivity extends ActionBarActivity{
-    private Random rand = new Random();
-    // Number of parts/squares visible in the Mondrian
-    private int MAX_PARTS = 6;
-    private int TOTAL_WEIGHT_PER_PART = 4;
-    private int BORDER_WIDTH = 5;
+    private LinearLayout mainLayout;
+    private SeekBar seek;
+    private Mondrian mondrian;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,97 +28,30 @@ public class MainActivity extends ActionBarActivity{
         setContentView(R.layout.activity_main);
 
         // Main layout from the xml file
-        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.main_layout);
-        makeMondrian(mainLayout, 0);
+        mainLayout = (LinearLayout) findViewById(R.id.main_layout);
+
+        // Create a new Mondrian object
+        mondrian = new Mondrian(mainLayout, this);
+        mondrian.draw();
+
+        // The seekBar for changing the color of the colored squares of the Mondrian
+        seek = (SeekBar) findViewById(R.id.seekBar);
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
+                mondrian.recolorMondrian();
+            }
+
+            // Implementation of the methods are not required for this app
+            // But there existence is required for the code to function properly
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
 
-    private void makeMondrian(LinearLayout parentLayout, int partCount) {
-        if(partCount >= MAX_PARTS) return;
-        int partitionWeight = rand.nextInt(TOTAL_WEIGHT_PER_PART - 1) + 1; // Avoids the generation of 0
-        LinearLayout firstPartition = createPartition(partitionWeight, parentLayout);
-        LinearLayout border = getPartitionBorder(parentLayout.getOrientation());
-        LinearLayout secondPartition = createPartition(TOTAL_WEIGHT_PER_PART - partitionWeight, parentLayout);
-
-        parentLayout.addView(firstPartition);
-        parentLayout.addView(border);
-        parentLayout.addView(secondPartition);
-
-
-        makeMondrian(secondPartition, partCount + 2);
-        makeMondrian(firstPartition, partCount + 2);
-    }
-
-
-    /*
-    * Function : getPartitionBorder(orientation of the parent container)
-    * -------------------------------------------------------------------
-    * Returns a thin LinearLayout black in color to act as a border between
-    * two Partitions of the parent.
-    */
-    private LinearLayout getPartitionBorder(int containerOrientation) {
-        LinearLayout border = new LinearLayout(this);
-        border.setBackgroundColor(Color.BLACK);
-
-        LinearLayout.LayoutParams borderParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
-
-        if(containerOrientation == LinearLayout.VERTICAL) {
-            borderParams.height = BORDER_WIDTH;
-        }else{
-            borderParams .width = BORDER_WIDTH;
-        }
-
-        border.setLayoutParams(borderParams);
-        return border;
-    }
-
-    /*
-    * Function : createPartition(weight of the layout)
-    * Usage    : LinearLayout sampleLayout = createLayout(2);
-    * ------------------------------------------------------------------
-    * Creates a LinearLayout View with the specified weight in parameter
-    */
-    private LinearLayout createPartition(float layoutWeight, LinearLayout parentLayout) {
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setBackgroundColor(randomColor());
-        linearLayout.setOrientation(rand.nextBoolean() ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-
-        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        linearLayoutParams.weight = layoutWeight;
-
-        if(parentLayout.getOrientation() == LinearLayout.VERTICAL) {
-            linearLayoutParams.height = 0; // Will be automatically set by provided weight
-        }else {
-            linearLayoutParams.width = 0; // Will be automatically set by provided weight
-        }
-
-        linearLayout.setLayoutParams(linearLayoutParams);
-
-        return linearLayout;
-    }
-
-    /*
-    * Function : randomColor()
-    * Usage    : viewVariable.setColor(randomColor);
-    * -----------------------------------------------
-    */
-    private int randomColor() {
-        boolean shouldBeWhite = generateBiasedBoolean(0.65f);
-        if(shouldBeWhite) {
-            return (Color.argb(255, 255, 255,255));
-        } else {
-            return (Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256)));
-        }
-    }
-
-    /*
-     * Function : generateBiasedBoolean(bias Value)
-     * -----------------------------------------------------------------------------------
-     * Favors true more if passed in "float bias"/bias Value is greater than 0.5 and favors false more if passed
-     * in "float bias"/bias Value is less than 0.5
-     */
-    private boolean generateBiasedBoolean(float bias){
-        return (rand.nextFloat() < bias);
-    }
 
     /*
     * Function : gestureDetector() and onTouchEvent
@@ -137,6 +72,7 @@ public class MainActivity extends ActionBarActivity{
     * Function : makeToast(message to display in toast)
     * --------------------------------------------------
     * Creates and shows toast with the message that is passed in as parameter
+    * Mostly used for debugging purposes.
     */
     public void makeToast(String message) {
         Context context = getApplicationContext();
@@ -144,13 +80,14 @@ public class MainActivity extends ActionBarActivity{
         Toast toast = Toast.makeText(context, message, duration);
         toast.show();
     }
-    // Methods for Options Menu
+
+//######################################################## Methods for the options menu
 
     /*
     * Function : onCreateOptionsMenu()
-    * ----------------------------------
-    * Intrinsic function of android platform
-    * to inflate the the menu with layout tap of the action overflow icon
+    * ---------------------------------------------------------
+    * Intrinsic function of android platform to inflate the the
+    * menu with layout on tap of the action overflow icon.
     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,10 +110,13 @@ public class MainActivity extends ActionBarActivity{
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_more_info) {
+            makeToast("You will get a lot of fucking information bitch!");
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }
