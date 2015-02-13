@@ -9,6 +9,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.TextView;
 
+/*
+* Class : AlertDialogFragment.java
+* ------------------------------------------
+* Manages the creation of the Alert Dialog and the
+* launching of browser to visit the MOMA website.
+*/
+
 public class AlertDialogFragment extends DialogFragment{
     private static final String MOMA_SITE_URL = "http://www.moma.org";
     public static AlertDialogFragment newInstance() {
@@ -29,7 +36,7 @@ public class AlertDialogFragment extends DialogFragment{
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    // Kill the dialog simply no need to do anything else
+                                    // The dialog box gets killed
                                 }
                             }
                         )

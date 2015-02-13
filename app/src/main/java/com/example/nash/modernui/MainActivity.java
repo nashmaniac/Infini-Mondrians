@@ -35,7 +35,6 @@ public class MainActivity extends ActionBarActivity{
 
         // The seekBar for changing the color of the colored squares of the Mondrian
         mSeekBar = (SeekBar) findViewById(R.id.seekBar);
-        mSeekBar.setMax(100);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
